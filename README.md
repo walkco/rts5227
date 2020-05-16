@@ -1,11 +1,8 @@
-General Information
-===================
+# General Information
 
 Linux driver for Realtek PCI-Express card reader chip.
 
-
-Build Steps
-===========
+# Build Steps
 
 1) make
 2) make install
