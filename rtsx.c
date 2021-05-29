@@ -201,6 +201,14 @@ static int queuecommand(struct scsi_cmnd *srb,
 static DEF_SCSI_QCMD(queuecommand)
 #endif
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
+  /* 'ioremap_nocache' was deprecated in kernels >= 5.6, so instead we use 'ioremap' which
+  is no-cache by default since kernels 2.6.25. */
+#    define IOREMAP_NO_CACHE(address, size) ioremap(address, size)
+#else /* KERNEL_VERSION < 2.6.25 */
+#    define IOREMAP_NO_CACHE(address, size) ioremap_nocache(address, size)
+#endif
+
 /***********************************************************************
  * Error handling functions
  ***********************************************************************/
@@ -971,7 +979,7 @@ static int rtsx_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
 
 	printk(KERN_INFO "Resource length: 0x%x\n", (unsigned int)pci_resource_len(pci,0));
 	dev->addr = pci_resource_start(pci, 0);
-	dev->remap_addr = ioremap_nocache(dev->addr, pci_resource_len(pci,0));
+	dev->remap_addr = IOREMAP_NO_CACHE(dev->addr, pci_resource_len(pci,0));
 	if (dev->remap_addr == NULL) {
 		printk(KERN_ERR "ioremap error\n");
 		err = -ENXIO;
